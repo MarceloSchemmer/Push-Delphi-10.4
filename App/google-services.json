@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1020526764190",
+    "project_id": "push-delphi-104",
+    "storage_bucket": "push-delphi-104.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1020526764190:android:71bfd69e7ba6b968d95b8f",
+        "android_client_info": {
+          "package_name": "com.embarcadero.Push"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1020526764190-mll4itik43i525ioh8dhg5b86rjqotes.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBami851oOxHZni8mixF1PuSdGEvUdG1Sg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1020526764190-mll4itik43i525ioh8dhg5b86rjqotes.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

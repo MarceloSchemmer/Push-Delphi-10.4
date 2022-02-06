@@ -1,0 +1,107 @@
+unit uFrmPrincipal;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Memo.Types,
+  FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo,FMX.Platform,
+
+  {$IFDEF ANDROID}
+  FMX.PushNotification.Android,
+  {$ENDIF}
+  {$IFDEF IOS}
+  FMX.PushNotification.FCM.iOS,
+  {$ENDIF}
+
+  System.PushNotification, System.Notification;
+
+type
+  TFrmPrincipal = class(TForm)
+    MemoLog: TMemo;
+    procedure FormCreate(Sender: TObject);
+  private
+    FPushService          : TPushService;
+    FPushServiceConnection: TPushServiceConnection;
+
+    procedure OnServiceConnectionChange(Sender: TObject;PushChanges: TPushService.TChanges);
+    procedure RegistrarDevice(sToken: String);
+    function AppEventProc(AAppEvent: TApplicationEvent;AContext: TObject): Boolean;
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmPrincipal: TFrmPrincipal;
+
+implementation
+
+{$R *.fmx}
+
+function TFrmPrincipal.AppEventProc(AAppEvent: TApplicationEvent;
+  AContext: TObject): Boolean;
+begin
+    if (AAppEvent = TApplicationEvent.BecameActive) then
+        LimparNotificacoes;
+end;
+
+procedure TFrmPrincipal.FormCreate(Sender: TObject);
+var
+    AppEvent : IFMXApplicationEventService;
+begin
+    // Eventos do app (para exclusao das notificacoes)...
+    if TPlatformServices.Current.SupportsPlatformService(IFMXApplicationEventService, IInterface(AppEvent)) then
+        AppEvent.SetApplicationEventHandler(AppEventProc);
+
+    FPushService := TPushServiceManager.Instance.GetServiceByName(TPushService.TServiceNames.FCM);
+    FPushServiceConnection := TPushServiceConnection.Create(FPushService);
+
+    FPushServiceConnection.OnChange := OnServiceConnectionChange;
+    FPushServiceConnection.OnReceiveNotification := OnServiceConnectionReceiveNotification;
+
+    FPushServiceConnection.Active := True;
+end;
+
+procedure TFrmPrincipal.OnServiceConnectionChange(Sender: TObject;
+  PushChanges: TPushService.TChanges);
+var
+    token : string;
+begin
+    if TPushService.TChange.Status in PushChanges then
+    begin
+        if FPushService.Status = TPushService.TStatus.Started then
+        begin
+            MemoLog.Lines.Add('Serviço de push iniciado com sucesso');
+            MemoLog.Lines.Add('----');
+        end
+        else
+        if FPushService.Status = TPushService.TStatus.StartupError then
+        begin
+            FPushServiceConnection.Active := False;
+
+            MemoLog.Lines.Add('Erro ao iniciar serviço de push');
+            MemoLog.Lines.Add(FPushService.StartupError);
+            MemoLog.Lines.Add('----');
+        end;
+    end;
+
+    if TPushService.TChange.DeviceToken in PushChanges then
+    begin
+        token := FPushService.DeviceTokenValue[TPushService.TDeviceTokenNames.DeviceToken];
+
+        MemoLog.Lines.Add('Token do aparelho recebido');
+        MemoLog.Lines.Add('Token: ' + token);
+        MemoLog.Lines.Add('---');
+        MemoLog.Lines.EndUpdate;
+
+        RegistrarDevice(token);
+    end;
+end;
+
+procedure TFrmPrincipal.RegistrarDevice(sToken:String);
+begin
+  //Salva o token do aparelho no servidor...
+end;
+
+end.
